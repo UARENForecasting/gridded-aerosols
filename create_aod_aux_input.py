@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 import os
-from io import StringIO
 import numpy as np
 import netCDF4 as nc
 import pandas as pd
-import requests 
 import glob
 import sys
 
