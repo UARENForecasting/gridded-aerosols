@@ -41,4 +41,5 @@ $ python create_geso5_aod_aux_input.py
 
 
 NRL data from: https://usgodae.org/cgi-bin/datalist.pl?Data_Type=aerosol&Parameter=aod&Provider=ALL&meta=Go
+
 GOES5 data from: https://gmao.gsfc.nasa.gov/GMAO_products/NRT_products.php
