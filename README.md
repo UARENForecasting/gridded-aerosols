@@ -2,7 +2,8 @@
 scripts for getting and analyzing gridded aerosol products
 
 
-NRL ICAP ENSEMBLE
+NRL ICAP ENSEMBLE:
+
 Some instructions for running scripts to download NRL ICAP 2D aerosol data, partition it into seperate forecast files and finally put it in a format (temporary ungrib files) ready to be used in metgrid.exe: 
 
 - compilation of the fortran code needs to be done first
@@ -18,7 +19,8 @@ $ python create_icap_aod_aux_input.py
 {creates ICAP.FILE:* type ungrib files}
 
 
-GEOS5
+GEOS5:
+
 Similar instructions for running scripts to download GEOS5 2D aerosol forecast data files and put in a format (temporary ungrib files) ready to be used in metgrid.exe: 
 
 - compilation of the a slightly different version of the same fortran code needs to be done first
