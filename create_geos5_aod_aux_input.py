@@ -29,8 +29,6 @@ time_now = pd.Timestamp.now(tz='UTC')
 year  = str(time_now)[:4]
 month = str(time_now)[5:7]
 day   = str(time_now)[8:10]
-#init_ymdt = time_now - pd.Timedelta('1d')
-#init_day = str(init_ymdt)[8:10]
 
 #####################################
 # download first +48hrs of forecast #
@@ -43,12 +41,8 @@ for i in range(len(forecast_times)):
         d = 0 
     if  7 < i < 16 :
         d = 1
-
-    print ('###############')
-    print (forecast_times[i])
-    print (time_now)
-    print (forecast_strs[d])
-    print ('###############') 
+    if 15 < i      :
+        d = 2
 
     # download latest forecast file
     file_name = str('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_12+'+str(forecast_strs[d])[:4]+str(forecast_strs[d])[5:7]+str(forecast_strs[d])[8:10]+'_'+forecast_times[i]+'00.V01.nc4')
@@ -67,6 +61,7 @@ for j in range(len(constant_times)):
         e = 0 
     if  6 < j < 12 :
         e = 1
+
     constant_file_name  = str('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_12+'+str(constant_strs[e])[:4]+str(constant_strs[e])[5:7]+str(constant_strs[e])[8:10]+'_'+constant_times[j]+'00.V01.nc4')
     os.system('cp '+file_name+' '+constant_file_name)
       
@@ -75,5 +70,5 @@ for j in range(len(constant_times)):
 #################################################################################
 for fcstfile in glob.glob('GEOS.fp.fcst.inst1_2d_hwl_Nx.*'):
     os.system('./write_aerosols_for_metgrid.Linux '+fcstfile)
-    #os.system('rm '+fcstfile)
+    os.system('rm '+fcstfile)
 
