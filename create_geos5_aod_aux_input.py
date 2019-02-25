@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import os
-from io import StringIO
+import glob
+import sys
+
 import numpy as np
 import netCDF4 as nc
 import pandas as pd
-import requests 
-import glob
-import sys
+
 
 #################################################################################
 # GEOS5 is initialised at 1200z available to download from approx 1900-2000z    #

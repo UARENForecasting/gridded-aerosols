@@ -11,7 +11,9 @@ Instructions for running scripts to download GEOS5 2D aerosol data, partition it
 $ ifort -convert big_endian -I/usr/include write_aerosols_for_metgrid.f -L/st1/luong/lib/netcdf-4.3.3.1/lib -lnetcdf -lnetcdff -o write_aerosols_for_metgrid.Linux
 {likely will need to change pathways to netcdf library}
 
-- run python script to download and process GEOS5 2D aerosol data [add python library requirements]
+- run python script to download and process GEOS5 2D aerosol data 
+
+[library requirements] os, glob, sys, numpy, netCDF4, pandas
 
 $ python create_geos5_aod_aux_input.py
 
