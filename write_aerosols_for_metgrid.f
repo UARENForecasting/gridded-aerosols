@@ -10,7 +10,7 @@ c      ifort -convert big_endian -I$ms/GRIB/include write_aerosols_for_metgrid.f
 c
 c     old compilation:
 c     ifort -convert big_endian -I/usr/include write_aerosols_for_metgrid.f -lnetcdf -lnetcdff -o write_aerosols_for_metgrid.Linux
-      INCLUDE 'netcdf.inc'
+      INCLUDE '/home/luong/lib/netcdf-4.3.3.1/include/netcdf.inc'
       integer, parameter :: ydim = 721
       integer, parameter :: xdim = 1152
       integer, parameter :: missvar = -1
@@ -354,7 +354,7 @@ c     end of repeating section for other fields or levels
 
       subroutine handle_err(iret)
       integer iret
-      include 'netcdf.inc'
+      include '/home/luong/lib/netcdf-4.3.3.1/include/netcdf.inc'
       if (iret .ne. NF_NOERR) then
       print *, nf_strerror(iret)
       stop
