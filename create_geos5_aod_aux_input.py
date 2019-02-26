@@ -21,57 +21,56 @@ import pandas as pd
 
 # find the day and forecast initialisation day
 # GEOS5 has ~8 hour latency
-time_now = pd.Timestamp.now(tz='UTC')
+time_now = pd.Timestamp.utcnow()
 
 # testing switch
 #time_now = time_now - pd.Timedelta('1d')
 
-year  = str(time_now)[:4]
-month = str(time_now)[5:7]
-day   = str(time_now)[8:10]
+year  = time_now.strftime('%Y')
+month = time_now.strftime('%m')
+day   = time_now.strftime('%d')
 
 #########################################
 # download first +48hrs of 12z forecast #
 #########################################
-forecast_times = ['00','03','06','09','12','15','18','21','00','03','06','09','12','15','18','21','00']
-forecast_strs = [(time_now + pd.Timedelta('1d')),(time_now + pd.Timedelta('2d')),(time_now + pd.Timedelta('3d'))]
-for i in range(len(forecast_times)):
-    # select correct index for date based on forecast start time initialization 0000UTC(+1day)
-    if      i <  8 :
-        d = 0 
-    if  7 < i < 16 :
-        d = 1
-    if 15 < i      :
-        d = 2
-
-    # download latest forecast file
-    file_name = str('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_12+'+str(forecast_strs[d])[:4]+str(forecast_strs[d])[5:7]+str(forecast_strs[d])[8:10]+'_'+forecast_times[i]+'00.V01.nc4')
-    print (file_name)
+forecast_times = [f'{hr:02}' for hr in range(0, 22, 3)] * 2 + ['00']
+forecast_days = [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')]
+# download 12z forecast files for first +48 hrs
+for forecast_day, forecast_time in zip(forecast_days, forecast_times):
+    file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_12+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
+    print(file_name)
     url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H12/'+file_name
     os.system(' wget --user=gmao_ops --password='' '+url)
 
 ########################################
 # fill in last 36hrs with 00z forecast #
 ########################################
-constant_times = ['03','06','09','12','15','18','21','00','03','06','09','12']
-constant_strs = [(time_now + pd.Timedelta('3d')),(time_now + pd.Timedelta('4d'))]
-for j in range(len(constant_times)):
-    # select correct index for date based on forecast start time initialization 0000UTC(+1day)
-    if      j <  7 :
-        e = 0 
-    if  6 < j < 12 :
-        e = 1
-
-    # download older forecast file for 
-    z00_file_name = str('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_00+'+str(constant_strs[e])[:4]+str(constant_strs[e])[5:7]+str(constant_strs[e])[8:10]+'_'+constant_times[j]+'00.V01.nc4')
-    url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H00/'+z00_file_name
-    os.system(' wget --user=gmao_ops --password='' '+url)
-
-      
+constant_times =  [f'{hr:02}' for hr in range(3,22, 3)] + [f'{hr:02}' for hr in range(0,13, 3)]
+constant_days  =  [time_now + pd.Timedelta('3d')] * 7 + [time_now + pd.Timedelta('4d')] * 5
+# download 00z forecast files for +48-84hrs
+for constant_day, constant_time in zip(constant_days, constant_times):
+    z00_file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_12+' + constant_day.strftime('%Y%m%d') + '_' + constant_time + '00.V01.nc4'
+    print(z00_file_name)
+    url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H12/'+z00_file_name
+    try:
+        retcode = call(" wget --user=gmao_ops --password='' " + url, shell=True)
+        if retcode < 0:
+            print("Child was terminated by signal", -retcode, file=sys.stderr)
+        else:
+            print("Child returned", retcode, file=sys.stderr)
+    except OSError as e:
+        print("Execution failed:", e, file=sys.stderr)
+     
 ################################################################################# 
 # convert all files to metgrid.exe readable files and clean up downloaded files #
 #################################################################################
 for fcstfile in glob.glob('GEOS.fp.fcst*'):
-    os.system('./write_aerosols_for_metgrid.Linux '+fcstfile)
-    os.system('rm '+fcstfile)
-
+    try:
+        retcode = call("./write_aerosols_for_metgrid.Linux" + fcstfile, shell=True)
+        if retcode < 0:
+            print("Child was terminated by signal", -retcode, file=sys.stderr)
+        else:
+            print("Child returned", retcode, file=sys.stderr)
+    except OSError as e:
+        print("Execution failed:", e, file=sys.stderr)
+    os.remove(fcstfile)
