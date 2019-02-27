@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import subprocess
 import glob
 import sys
 
@@ -24,7 +25,7 @@ import pandas as pd
 time_now = pd.Timestamp.utcnow()
 
 # testing switch
-#time_now = time_now - pd.Timedelta('1d')
+time_now = time_now - pd.Timedelta('1d')
 
 year  = time_now.strftime('%Y')
 month = time_now.strftime('%m')
@@ -40,7 +41,15 @@ for forecast_day, forecast_time in zip(forecast_days, forecast_times):
     file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_12+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
     print(file_name)
     url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H12/'+file_name
-    os.system(' wget --user=gmao_ops --password='' '+url)
+    try:
+        retcode = subprocess.call(" wget --user=gmao_ops --password=''  " + url, shell=True)
+        if retcode < 0:
+            print("Child was terminated by signal", -retcode, file=sys.stderr)
+        else:
+            print("Child returned", retcode, file=sys.stderr)
+    except OSError as e:
+        print("Execution failed:", e, file=sys.stderr)
+
 
 ########################################
 # fill in last 36hrs with 00z forecast #
@@ -49,24 +58,24 @@ constant_times =  [f'{hr:02}' for hr in range(3,22, 3)] + [f'{hr:02}' for hr in 
 constant_days  =  [time_now + pd.Timedelta('3d')] * 7 + [time_now + pd.Timedelta('4d')] * 5
 # download 00z forecast files for +48-84hrs
 for constant_day, constant_time in zip(constant_days, constant_times):
-    z00_file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_12+' + constant_day.strftime('%Y%m%d') + '_' + constant_time + '00.V01.nc4'
+    z00_file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_00+' + constant_day.strftime('%Y%m%d') + '_' + constant_time + '00.V01.nc4'
     print(z00_file_name)
-    url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H12/'+z00_file_name
+    url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H00/'+z00_file_name
     try:
-        retcode = call(" wget --user=gmao_ops --password='' " + url, shell=True)
+        retcode = subprocess.call(" wget --user=gmao_ops --password=''  " + url, shell=True)
         if retcode < 0:
             print("Child was terminated by signal", -retcode, file=sys.stderr)
         else:
             print("Child returned", retcode, file=sys.stderr)
     except OSError as e:
         print("Execution failed:", e, file=sys.stderr)
-     
+   
 ################################################################################# 
 # convert all files to metgrid.exe readable files and clean up downloaded files #
 #################################################################################
 for fcstfile in glob.glob('GEOS.fp.fcst*'):
     try:
-        retcode = call("./write_aerosols_for_metgrid.Linux" + fcstfile, shell=True)
+        retcode = subprocess.call("./write_aerosols_for_metgrid.Linux " + fcstfile, shell=True)
         if retcode < 0:
             print("Child was terminated by signal", -retcode, file=sys.stderr)
         else:
