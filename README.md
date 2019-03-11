@@ -13,7 +13,7 @@ $ ifort -convert big_endian -I/usr/include write_aerosols_for_metgrid.f -L/st1/l
 
 - run python script to download and process GEOS5 2D aerosol data 
 
-[library requirements] os, glob, sys, numpy, netCDF4, pandas
+[library requirements] os, subprocess, glob, sys, numpy, netCDF4, pandas
 
 $ python create_geos5_aod_aux_input.py
 
