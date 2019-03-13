@@ -33,8 +33,9 @@ day   = time_now.strftime('%d')
 #########################################
 # download first +48hrs of 12z forecast #
 #########################################
-forecast_times = [f'{hr:02}' for hr in range(0, 22, 3)] * 2 + ['00']
-forecast_days = [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')]
+forecast_times = ['18','21'] + [f'{hr:02}' for hr in range(0, 22, 3)] * 2 + ['00']
+forecast_days = [time_now]* 2 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')]
+
 # download 12z forecast files for first +48 hrs
 for forecast_day, forecast_time in zip(forecast_days, forecast_times):
     file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_00+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
@@ -54,6 +55,7 @@ for forecast_day, forecast_time in zip(forecast_days, forecast_times):
 ########################################
 constant_times =  [f'{hr:02}' for hr in range(3,22, 3)] + [f'{hr:02}' for hr in range(0,13, 3)]
 constant_days  =  [time_now + pd.Timedelta('3d')] * 7 + [time_now + pd.Timedelta('4d')] * 5
+
 # download 00z forecast files for +48-84hrs
 for constant_day, constant_time in zip(constant_days, constant_times):
     z00_file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_00+' + constant_day.strftime('%Y%m%d') + '_' + constant_time + '00.V01.nc4'
