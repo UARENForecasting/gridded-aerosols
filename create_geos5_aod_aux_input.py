@@ -20,7 +20,7 @@ import pandas as pd
 time_now = pd.Timestamp.utcnow()
 
 # testing switch
-time_now = time_now - pd.Timedelta('12h')
+#time_now = time_now - pd.Timedelta('12h')
 
 year  = time_now.strftime('%Y')
 month = time_now.strftime('%m')
