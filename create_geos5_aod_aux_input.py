@@ -44,7 +44,7 @@ else:
 for forecast_day, forecast_time in zip(forecast_days, forecast_times):
     file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.' + year + month + day + '_00+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
     print(file_name)
-    url = 'ftp://ftp.nccs.nasa.gov/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H00/'+file_name
+    url = 'https://portal.nccs.nasa.gov/datashare/gmao_ops/pub/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H00/'+file_name
     try:
         retcode = subprocess.call(" wget --user=gmao_ops --password=''  " + url, shell=True)
         if retcode < 0:
