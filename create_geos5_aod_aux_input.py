@@ -35,13 +35,13 @@ day   = time_now.strftime('%d')
 ####################################################
 # this is for the 06z run  
 if 6 <= time_now.hour < 12: 
-    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] *3 + ['00']
+    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] * 3 + ['00']
     forecast_days  = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 \
                                     + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')] * 8 \
                                     + [time_now + pd.Timedelta('4d')]
 # this is for the 12z run  
 if 12 <= time_now.hour < 18:
-    forecast_times = [f'{hr:02}' for hr in range(12, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] *3 + ['00','06','09']
+    forecast_times = [f'{hr:02}' for hr in range(12, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] * 3 + ['00','06','09']
     forecast_days  = [time_now] * 4 + [time_now + pd.Timedelta('1d')] * 8 \
                                     + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')] * 8 \
                                     + [time_now + pd.Timedelta('4d')] * 3
@@ -53,7 +53,7 @@ if  18 <= time_now.hour < 24 :
 # this is for the 00z run 
 if  0 <= time_now.hour < 6 : 
     forecast_times = [f'{hr:02}' for hr in range(0, 22, 3)] * 3  + [f'{hr:02}' for hr in range(0,19, 3)]
-    forecast_days =  [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
+    forecast_days  = [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 7
  
 #################
@@ -81,16 +81,25 @@ for forecast_day, forecast_time in zip(forecast_days, forecast_times):
 # convert all files to metgrid.exe readable files and clean up downloaded files #
 #################################################################################
 for fcstfile in glob.glob('GEOS.fp.fcst*'):
-    try:
-        retcode = subprocess.call("./write_aerosols_for_metgrid.Linux " + fcstfile, shell=True)
-        if retcode < 0:
-            print("Child was terminated by signal", -retcode, file=sys.stderr)
-        else:
-            print("Child returned", retcode, file=sys.stderr)
-    except OSError as e:
-        print("Execution failed:", e, file=sys.stderr)
+    # stop conversion if passed time limit
+    if time.time() - start_time < time_limit:
+        try:
+            retcode = subprocess.call("./write_aerosols_for_metgrid.Linux " + fcstfile, shell=True)
+            if retcode < 0:
+                print("Child was terminated by signal", -retcode, file=sys.stderr)
+            else:
+                print("Child returned", retcode, file=sys.stderr)
+        except OSError as e:
+            print("Execution failed:", e, file=sys.stderr)
     os.remove(fcstfile)
 
-print("########################### \n",
-      "TOTAL TIME IS ",round((time.time() - start_time)/60.,2)," mins")
-print("###########################")
+# stop download if passed time limit
+if time.time() - start_time < time_limit: 
+    print("########################### \n",
+          "TOTAL TIME IS ",round((time.time()-start_time)/60.,2)," mins")
+    print("###########################")
+
+else: 
+    print("########################### \n",
+          "DOWNLOAD EXCEEDED TIME LIMIT ",round((time.time() - start_time)/60.,2)," mins")
+    print("###########################")
