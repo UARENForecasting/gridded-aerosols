@@ -16,13 +16,13 @@ import pandas as pd
 #                                                                               #
 # +84hrs of GEOS5 data is pulled, all data coming from 00z run                  # 
 #################################################################################
-time_limit = 2*3600 # [seconds]  2 hours 
+time_limit = 2 * 3600 # [seconds]  2 hours 
 start_time = time.time()
 
 # find the day and forecast initialisation day
 # GEOS5 has ~8 hour latency
 time_now = pd.Timestamp.utcnow()
-
+print(time_now)
 # testing switch
 #time_now = time_now - pd.Timedelta('12h')
 
@@ -35,23 +35,35 @@ day   = time_now.strftime('%d')
 ####################################################
 # this is for the 06z run  
 if 6 <= time_now.hour < 12: 
+    print("########################### \n",
+          "DOWNLOADING FOR 06z")
+    print("###########################")
     forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] * 3 + ['00']
     forecast_days  = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 \
                                     + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')] * 8 \
                                     + [time_now + pd.Timedelta('4d')]
 # this is for the 12z run  
 if 12 <= time_now.hour < 18:
+    print("########################### \n",
+          "DOWNLOADING FOR 12z")
+    print("###########################")
     forecast_times = [f'{hr:02}' for hr in range(12, 22, 3)] + [f'{hr:02}' for hr in range(0,22, 3)] * 3 + ['00','06','09']
     forecast_days  = [time_now] * 4 + [time_now + pd.Timedelta('1d')] * 8 \
                                     + [time_now + pd.Timedelta('2d')] * 8 + [time_now + pd.Timedelta('3d')] * 8 \
                                     + [time_now + pd.Timedelta('4d')] * 3
 # this is for the 18z run 
 if  18 <= time_now.hour < 24 : 
+    print("########################### \n",
+          "DOWNLOADING FOR 18z")
+    print("###########################")
     forecast_times = ['18','21']    + [f'{hr:02}' for hr in range(0, 22, 3)] * 3 + [f'{hr:02}' for hr in range(0,13, 3)]
     forecast_days  = [time_now] * 2 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
                                     + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 5
 # this is for the 00z run 
 if  0 <= time_now.hour < 6 : 
+    print("########################### \n",
+          "DOWNLOADING FOR 00z")
+    print("###########################")
     forecast_times = [f'{hr:02}' for hr in range(0, 22, 3)] * 3  + [f'{hr:02}' for hr in range(0,19, 3)]
     forecast_days  = [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 7
@@ -73,9 +85,9 @@ for forecast_day, forecast_time in zip(forecast_days, forecast_times):
                 print("Child returned", retcode, file=sys.stderr)
         except OSError as e:
             print("Execution failed:", e, file=sys.stderr)
-    print("########################### \n",
-          "DOWNLOAD TIME: ",round((time.time()-start_time)/60.,2)," mins")
-    print("###########################")
+        print("########################### \n",
+              "DOWNLOAD TIME: ",round((time.time()-start_time)/60.,2)," mins")
+        print("###########################")
   
 ################################################################################# 
 # convert all files to metgrid.exe readable files and clean up downloaded files #
