@@ -10,7 +10,7 @@ import time
 import numpy as np
 import netCDF4 as nc
 import pandas as pd
-from get_aeronet_master import aod_mean,ang_exp
+from get_aeronet import mean,ang_exp
 
 #################################################################################
 # GEOS5 is initialised at 00z available to download from approx 0300-0400z      #
@@ -122,7 +122,7 @@ if time.time()-start_time < lower_time_limit  or time.time()-start_time >= upper
 
         ncfile       = nc.Dataset(in_file,'r+')
         aod_index    = ncfile.variables['TOTEXTTAU'][:]
-        aod_index[:] = aod_mean
+        aod_index[:] = mean
         ncfile.variables['TOTEXTTAU'][:] = aod_index
         ang_index    = ncfile.variables['TOTANGSTR'][:]
         ang_index[:] = ang_exp
