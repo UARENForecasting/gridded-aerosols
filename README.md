@@ -15,7 +15,7 @@ $ ifort -convert big_endian -I/usr/include write_aerosols_for_metgrid.f -L/st1/l
 
 [library requirements] os, subprocess, glob, sys, numpy, netCDF4, pandas, requests, get_aeronet
 
-[create a soft link to get_aeronet script in the get_aeronet repo in UARENForecasting]
+[create a soft link to get_aeronet.py script from the get_aeronet repo in UARENForecasting]
 
 $ python create_geos5_aod_aux_input.py
 
