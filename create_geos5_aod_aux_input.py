@@ -43,10 +43,15 @@ day   = time_now.strftime('%d')
 #####################################################
 # download 84 + 18 = 102 hrs of 00Z GEOS-5 forecast #
 #####################################################  
-all_forecast_times = [f'{hr:02}' for hr in range(0, 22, 3)] * 4  + [f'{hr:02}' for hr in range(0,4, 3)] 
-all_forecast_days = [time_now] * 8 + [time_now + pd.Timedelta('1d')] * 8 +  [time_now + pd.Timedelta('2d')] * 8 \
-                               + [time_now + pd.Timedelta('3d')] * 7
+all_forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 3 + [f'{hr:02}' for hr in range(0, 10, 3)]    
+all_forecast_days = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 +  [time_now + pd.Timedelta('2d')] * 8 \
+                               + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 4
 
+
+print(all_forecast_times)
+print(len(all_forecast_times))
+print(len(all_forecast_days)) 
+sys.exit()
 #################
 # download data #
 #################

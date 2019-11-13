@@ -1,10 +1,9 @@
 # gridded-aerosols
-scripts for getting and analyzing gridded aerosol products
+script for getting and analyzing gridded aerosol products
 
+GEOS-5 data from: https://gmao.gsfc.nasa.gov/GMAO_products/NRT_products.php
 
-GEOS5 - data from: https://gmao.gsfc.nasa.gov/GMAO_products/NRT_products.php
-
-Instructions for running scripts to download GEOS5 2D aerosol data, partition it into seperate forecast files and finally put it in a format (temporary ungrib files) ready to be used in metgrid.exe: 
+Instructions for running scripts to download GEOS-5 2D aerosol data, partition it into seperate forecast files and finally put it in a format (temporary ungrib files) ready to be used in metgrid.exe: 
 
 1. Compilation of the fortran code needs to be done first
 
@@ -13,23 +12,25 @@ $ ifort -convert big_endian -I/usr/include write_aerosols_for_metgrid.f -L/st1/l
 
 2. Run python script to download and process GEOS5 2D aerosol data 
 
-[library requirements] os, subprocess, glob, sys, numpy, netCDF4, pandas, requests, get_aeronet
+Library Requirements are: os, subprocess, glob, sys, numpy, netCDF4, pandas, requests, get_aeronet
 
-[create a soft link to get_aeronet.py script from the get_aeronet repo in UARENForecasting]
+A soft link to get_aeronet.py script from the get_aeronet repo in UARENForecasting need to be created 
 
-$ python create_geos5_aod_aux_input.py
+Now the script can be run: $python create_geos5_aod_aux_input.py
 
-{creates GEOS5.FILE:* type ungrib files}
+This should create GEOS5.FILE:* type ungrib files
 
 
+After the GEOS5.FILE:* type ungrib files have been made, namelist.wps needs to be told to read them at the metgrid.exe stage. In namelist.wps add something like this;
 
-Running the python code at 2015z means it is usually finished by 2030z. After the GEOS5.FILE:* type ungrib files have been made, namelist.wps needs to be told to read them at the metgrid.exe stage. In namelist.wps add something like this;
 &metgrid
  fg_name = 'FILE','GEOS5.FILE'
+
 
 Then, the instructions from David Ovens are applicable from 4.1 onwards on this page https://atmos.washington.edu/~ovens/running_wrf_with_geos5_aerosols/README
 
 Attached is a the namelist.input file being used for real.exe/wrf.exe. The key lines are:
+
  auxinput15_inname                   = 'wrfaerinput_d<domain>',
  auxinput15_outname                  = 'auxinput15_d<domain>_<date>',
  auxinput15_interval                 = 180,
