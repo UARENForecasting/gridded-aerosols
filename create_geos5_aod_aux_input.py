@@ -20,7 +20,7 @@ from get_aeronet import mean, ang_exp
 # 12Z GEOS5 is available to download from approx 2100-2200Z                     #
 # ready for inclusion in foreacsts initialised in WRF at 18Z and 00Z            #
 #                                                                               #
-# 84 + 6hrs of GEOS5 data is pulled, 84 for WRF and 6 for initialization diff.  # 
+# 120 + 6hrs of GEOS5 data is pulled, 120 for WRF and 6 for initialization diff.# 
 #################################################################################
 
 # start timer for script
@@ -29,7 +29,7 @@ start_time = time.time()
 # set upper and lower time limits for script to run
 overwrite_time_limit = 10   # [seconds] 
 lower_time_limit = 5 * 60   # [seconds] 5 minutes
-upper_time_limit = 3 * 3600 # [seconds] 2 hours
+upper_time_limit = 4 * 3600 # [seconds] 4 hours
 
 # GEOS-5 or AERONET switch
 config = 'geos5'
@@ -39,7 +39,7 @@ config = 'geos5'
 time_now = pd.Timestamp.utcnow()
 
 # testing switch
-#time_now = time_now - pd.Timedelta('1D') - pd.Timedelta('12h')
+time_now = time_now - pd.Timedelta('1D') - pd.Timedelta('12h')
 #print(time_now)
 
 # select GEOS-5 run to download data from (default is 00Z)
@@ -56,13 +56,18 @@ day   = time_now.strftime('%d')
 # download 84 + 6 = 90 hrs of GEOS-5 forecast   #
 #################################################  
 if geos == '00':
-    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 3 + [f'{hr:02}' for hr in range(0, 10, 3)]    
+    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 4 + [f'{hr:02}' for hr in range(0, 10, 3)]    
     forecast_days  = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
-                                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 4
+                                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 8 \
+                                    + [time_now + pd.Timedelta('5d')] * 4
 if geos == '12':
-    forecast_times = [f'{hr:02}' for hr in range(18, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 3 + [f'{hr:02}' for hr in range(0, 22, 3)]    
+    forecast_times = [f'{hr:02}' for hr in range(18, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 4 + [f'{hr:02}' for hr in range(0, 22, 3)]    
     forecast_days  = [time_now] * 3 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
-                                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 7
+                                    + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 8 \
+                                    + [time_now + pd.Timedelta('5d')] * 7
+#print(forecast_times,len(forecast_times))
+#print(forecast_days,len(forecast_days))
+
 #################
 # download data #
 #################
