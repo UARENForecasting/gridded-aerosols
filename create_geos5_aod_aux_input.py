@@ -34,10 +34,9 @@ config = 'geos5'
 
 # find the day and forecast initialisation day
 time_now = pd.Timestamp.utcnow()
-
 # testing switch
-#time_now = time_now - pd.Timedelta('12h')
-#print(time_now)
+#time_now = time_now - pd.Timedelta('21h')
+print(time_now)
 
 # select GEOS-5 run to download data from (default is 00Z)
 geos = '00'
@@ -53,31 +52,48 @@ day   = time_now.strftime('%d')
 # download 120 + 6 = 126 hrs of GEOS-5 forecast #
 #################################################  
 if geos == '00':
-    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 4 + [f'{hr:02}' for hr in range(0, 10, 3)]    
+    forecast_times = [f'{hr:02}' for hr in range(6, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 7 + [f'{hr:02}' for hr in range(0, 10, 3)]    
     forecast_days  = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
                                     + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 8 \
-                                    + [time_now + pd.Timedelta('5d')] * 4
+                                    + [time_now + pd.Timedelta('5d')] * 8 + [time_now + pd.Timedelta('6d')] * 8 \
+                                    + [time_now + pd.Timedelta('7d')] * 8 + [time_now + pd.Timedelta('8d')] * 4  
 if geos == '12':
-    forecast_times = [f'{hr:02}' for hr in range(18, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 4 + [f'{hr:02}' for hr in range(0, 22, 3)]    
-    forecast_days  = [time_now] * 3 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
+    forecast_times = [f'{hr:02}' for hr in range(18, 22, 3)] + [f'{hr:02}' for hr in range(0, 22, 3)] * 7 + [f'{hr:02}' for hr in range(0, 22, 3)]    
+    forecast_days  = [time_now] * 2 + [time_now + pd.Timedelta('1d')] * 8 + [time_now + pd.Timedelta('2d')] * 8 \
                                     + [time_now + pd.Timedelta('3d')] * 8 + [time_now + pd.Timedelta('4d')] * 8 \
-                                    + [time_now + pd.Timedelta('5d')] * 7
+                                    + [time_now + pd.Timedelta('5d')] * 8 + [time_now + pd.Timedelta('6d')] * 8 \
+                                    + [time_now + pd.Timedelta('7d')] * 8 + [time_now + pd.Timedelta('8d')] * 8
 
 ########################
 # download GEOS-5 data #
 ########################
 for forecast_day, forecast_time in zip(forecast_days, forecast_times):
-    if time.time() - start_time < upper_time_limit:         
-        file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_'+geos+'+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
-        url = 'https://portal.nccs.nasa.gov/datashare/gmao_ops/pub/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H'+geos+'/'+file_name
-        try:
-            retcode = subprocess.call(" wget -nc --user=gmao_ops --password=''  "+url+" --progress=bar:force 2>&1 | tail -f -n +6 ", shell=True)
-            if retcode < 0:
-                print("Child was terminated by signal", -retcode, file=sys.stderr)
-            else:
-                print("Child returned", retcode, file=sys.stderr)
-        except OSError as e:
-            print("Execution failed:", e, file=sys.stderr)
+    print(forecast_day,forecast_time)
+    if time.time() - start_time < upper_time_limit:
+	# 12Z GEOS5 forecasts out to +120hrs so after that forecast time script will get the rest from 00Z GEOS5
+        if geos =='12' and forecast_day < time_now+pd.Timedelta('5d'):
+            file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_'+geos+'+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
+            url = 'https://portal.nccs.nasa.gov/datashare/gmao_ops/pub/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H'+geos+'/'+file_name
+            try:
+                retcode = subprocess.call(" wget -nc --user=gmao_ops --password=''  "+url+" --progress=bar:force 2>&1 | tail -f -n +6 ", shell=True)
+                if retcode < 0:
+                    print("Child was terminated by signal", -retcode, file=sys.stderr)
+                else:
+                    print("Child returned", retcode, file=sys.stderr)
+            except OSError as e:
+                print("Execution failed:", e, file=sys.stderr)
+
+        else: # download from 00Z 
+            file_name = 'GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_00+' + forecast_day.strftime('%Y%m%d') + '_' + forecast_time + '00.V01.nc4'
+            url = 'https://portal.nccs.nasa.gov/datashare/gmao_ops/pub/fp/forecast/Y'+year+'/M'+month+'/D'+day+'/H00/'+file_name 
+            try:
+                retcode = subprocess.call(" wget -nc --user=gmao_ops --password=''  "+url+" --progress=bar:force 2>&1 | tail -f -n +6 ", shell=True)
+                if retcode < 0:
+                    print("Child was terminated by signal", -retcode, file=sys.stderr)
+                else:
+                    print("Child returned", retcode, file=sys.stderr)
+            except OSError as e:
+                print("Execution failed:", e, file=sys.stderr)
     print("########################### \n",
           "DOWNLOAD TIME: ",round((time.time()-start_time)/60.,2)," mins")
     print("###########################")
@@ -98,7 +114,7 @@ if overwrite_time_limit <= time.time()-start_time < lower_time_limit  or time.ti
 ################################################### 
 # convert all files to metgrid.exe readable files #
 ###################################################
-for fcstfile in glob.glob('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_'+geos+'*'  ):
+for fcstfile in glob.glob('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day+'_*'  ):
     try:
         retcode = subprocess.call("./write_aerosols_for_metgrid.Linux " + fcstfile, shell=True)
         if retcode < 0:
