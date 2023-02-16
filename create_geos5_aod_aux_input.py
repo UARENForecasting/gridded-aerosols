@@ -31,7 +31,7 @@ config = 'geos5'
 # find the day and forecast initialisation day
 time_now = pd.Timestamp.utcnow()
 # testing switch
-# time_now = time_now - pd.Timedelta('21h')
+#time_now = time_now - pd.Timedelta('21h')
 print(time_now)
 
 # select GEOS-5 run to download data from (default is 00Z)
@@ -49,47 +49,33 @@ day = time_now.strftime('%d')
 #################################################
 
 if geos == '00':
-    forecast_times = [f'{hr:02}' for hr in range(6, 22, 1)] + \
-                     [f'{hr:02}' for hr in range(0, 22, 1)] * 7 + \
-                     [f'{hr:02}' for hr in range(0, 10, 1)]
+    s = pd.Timestamp(year+month+day+ "0600", tz='UTC')
+    end_date = (s+pd.Timedelta('8d')).date().strftime('%Y%m%d')
+    e = pd.Timestamp(end_date+" 0900", tz='UTC')
 
-    forecast_days = [time_now] * 6 + [time_now + pd.Timedelta('1d')] * 8 \
-                                   + [time_now + pd.Timedelta('2d')] * 8 \
-                                   + [time_now + pd.Timedelta('3d')] * 8 \
-                                   + [time_now + pd.Timedelta('4d')] * 8 \
-                                   + [time_now + pd.Timedelta('5d')] * 8 \
-                                   + [time_now + pd.Timedelta('6d')] * 8 \
-                                   + [time_now + pd.Timedelta('7d')] * 8 \
-                                   + [time_now + pd.Timedelta('8d')] * 4
 if geos == '12':
-    forecast_times = [f'{hr:02}' for hr in range(18, 22, 1)] + \
-                     [f'{hr:02}' for hr in range(0, 22, 1)] * 7 + \
-                     [f'{hr:02}' for hr in range(0, 22, 1)]
+    s = pd.Timestamp(year+month+day+ "1800", tz='UTC')
+    end_date = (s+pd.Timedelta('8d')).date().strftime('%Y%m%d')
+    e = pd.Timestamp(end_date+" 2100", tz='UTC')
 
-    forecast_days = [time_now] * 2 + [time_now + pd.Timedelta('1d')] * 8 \
-                                   + [time_now + pd.Timedelta('2d')] * 8 \
-                                   + [time_now + pd.Timedelta('3d')] * 8 \
-                                   + [time_now + pd.Timedelta('4d')] * 8 \
-                                   + [time_now + pd.Timedelta('5d')] * 8 \
-                                   + [time_now + pd.Timedelta('6d')] * 8 \
-                                   + [time_now + pd.Timedelta('7d')] * 8 \
-                                   + [time_now + pd.Timedelta('8d')] * 8
-
+forecast_datetimes = pd.date_range(s,e, freq='1H')
+print('Number of files should be: ',len(forecast_datetimes))
 
 url_path = 'https://portal.nccs.nasa.gov/datashare/gmao_ops/pub/fp/forecast/Y'
 ########################
 # download GEOS-5 data #
 ########################
-for forecast_day, forecast_time in zip(forecast_days, forecast_times):
-    print(forecast_day,  forecast_time)
+for datetime in forecast_datetimes:
+    
     if time.time() - start_time < upper_time_limit:
         # 12Z GEOS5 forecasts out to +120hrs so after that
         # forecast time script will get the rest from 00Z GEOS5
-        if geos == '12' and forecast_day < time_now+pd.Timedelta('5d'):
+        if geos == '12' : #and forecast_day < time_now+pd.Timedelta('5d'):
             file_name = ('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day
-                         + '_'+geos+'+' + forecast_day.strftime('%Y%m%d')
-                         + '_' + forecast_time + '00.V01.nc4')
+                         + '_'+geos+'+' + datetime.date().strftime('%Y%m%d')
+                         + '_' + datetime.time().strftime('%H') + '00.V01.nc4')
             url = (url_path+year+'/M'+month+'/D'+day+'/H'+geos+'/'+file_name)
+            print(url)
             try:
                 retcode = subprocess.call(
                     "wget -nc --user=gmao_ops --password=''  " + url +
@@ -106,9 +92,10 @@ for forecast_day, forecast_time in zip(forecast_days, forecast_times):
 
         else:  # download from 00Z
             file_name = ('GEOS.fp.fcst.inst1_2d_hwl_Nx.'+year+month+day
-                         + '_00+' + forecast_day.strftime('%Y%m%d')
-                         + '_' + forecast_time + '00.V01.nc4')
+                         + '_00+' + datetime.date().strftime('%Y%m%d')
+                         + '_' + datetime.time().strftime('%H') + '00.V01.nc4')
             url = url_path+year+'/M'+month+'/D'+day+'/H00/'+file_name
+            print(url)
             try:
                 retcode = subprocess.call(
                     "wget -nc --user=gmao_ops --password=''  " + url +
